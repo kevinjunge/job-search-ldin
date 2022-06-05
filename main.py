@@ -36,15 +36,18 @@ class JobApply:
         # go to jobs section:
         jobs_link = self.driver.find_element_by_link_text('Jobs')
         jobs_link.click()
+        time.sleep(3)
 
         # introduce our keyword and location and hit enter
-        search_keyword = self.driver.find_element_by_xpath("//input[starts-with(@id, 'jobs-search-box-keyword']")
+        search_keyword = self.driver.find_element_by_xpath("//input[starts-with(@id, 'jobs-search-box-keyword')]")
         search_keyword.clear()
-        search_keyword.send_keys(self.keyword)
-        search_location = self.driver.find_element_by_xpath("//input[starts-with(@id, 'jobs-search-box-location']")
+        search_keyword.send_keys(self.keywords)
+        time.sleep(2)
+        search_location = self.driver.find_element_by_xpath("//input[starts-with(@id, 'jobs-search-box-location')]")
         search_location.clear()
         search_location.send_keys(self.location)
-         
+        time.sleep(1)
+        search_keyword.send_keys(Keys.RETURN)
 
 
 if __name__ == "__main__":
