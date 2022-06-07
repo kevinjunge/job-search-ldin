@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 import json
 import time
 class JobApply:
@@ -63,6 +64,27 @@ class JobApply:
         apply_filters_button.click()
         time.sleep(1)
 
+    def find_offers(self):
+        """This function finds all the offers through all the pages result of the search and filtering"""
+
+        # find the total amount of results (in case there are more than 24 of them)
+        total_results = self.driver.find_element_by_class_name("jobs-search-results-list__text.display-flex.t-12.t-black--light.t-normal")
+        total_results_int = int(total_results.text.split(' ', 1)[0].replace(',',''))
+        print(total_results_int)
+        
+        time.sleep(2)
+        # get results of first page
+        current_page = self.driver.current_url
+        results = self.driver.find_elements_by_class_name("jobs-search-results__list-item.occludable-update.p0.relative.ember-view")
+
+        # for each job add, submits and application if no questions are asked
+        for result in results:
+            hover = ActionChains(self.driver).move_to_element(result)
+            hover.perform()
+
+
+
+
 if __name__ == "__main__":
     
     with open('config.json') as config_file:
@@ -75,3 +97,5 @@ if __name__ == "__main__":
     bot.job_search()
     time.sleep(2)
     bot.filter()
+    time.sleep(1)
+    bot.find_offers()
