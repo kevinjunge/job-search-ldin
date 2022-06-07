@@ -3,6 +3,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 import json
 import time
+
 class JobApply:
 
     def __init__(self, data):
@@ -85,6 +86,44 @@ class JobApply:
 
 
 
+
+
+    def submit_application(self, job_ad):
+        """This function submits the application for the job ad found"""
+        
+        print("You are applying to the positon of: ", job_ad.text)
+        job_ad.click()
+        time.sleep(2)
+
+        # click on the easy apply button, skip if already applied to the position
+        try:
+            in_apply = self.driver.find_element_by_class_name("jobs-apply-button.artdeco-button.artdeco-button--3.artdeco-button--primary.ember-view")
+            in_apply.click()
+            print("--->Clicked on easy apply")
+        except:
+            print("You already applied to this job, go to next job...")
+            pass
+        time.sleep(1)
+
+        # try to submit application if the application is available
+        try:
+            submit = self.driver.find_element_by_xpath("//button[starts-with(@aria-label, 'Submit application')]")
+            submit.send_keys[Keys.RETURN]
+            print("--->Clicked on submit")
+            time.sleep(1)
+        # .. if button is not available, discard application and go to next one
+        except NoSuchElementException:
+            print("Not direct application, going to next...")
+            try:
+                discard = self.driver.find_element_by_xpath("//button[@data-test-modal-close-btn]")
+                discard.send_keys(Keys.RETURN)
+                time.sleep(1)
+                discard_confirm = self.driver.find_element_by_xpath("//button[@data-control-name='discard_application_confirm_btn']")
+                discard_confirm.send_keys(Keys.RETURN)
+                time.sleep(1)
+            except NoSuchElementException:
+                pass
+
 if __name__ == "__main__":
     
     with open('config.json') as config_file:
@@ -99,3 +138,5 @@ if __name__ == "__main__":
     bot.filter()
     time.sleep(1)
     bot.find_offers()
+    time.sleep(1)
+    
