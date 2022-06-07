@@ -36,7 +36,7 @@ class JobApply:
         # go to jobs section:
         jobs_link = self.driver.find_element_by_link_text('Jobs')
         jobs_link.click()
-        time.sleep(3)
+        time.sleep(2)
 
         # introduce our keyword and location and hit enter
         search_keyword = self.driver.find_element_by_xpath("//input[starts-with(@id, 'jobs-search-box-keyword')]")
@@ -49,6 +49,19 @@ class JobApply:
         time.sleep(1)
         search_keyword.send_keys(Keys.RETURN)
 
+    def filter(self):
+        """This function filters all the job results"""
+
+        # select all filters, click on easy apply and apply the filter
+        all_filters_button = self.driver.find_element_by_xpath("//button[starts-with(@aria-label, 'Show all filters')]")
+        all_filters_button.click()
+        time.sleep(1)
+        easy_apply_button = self.driver.find_element_by_xpath("//div[@class='jobs-search-advanced-filters__binary-toggle']")
+        easy_apply_button.click()
+        time.sleep(1)
+        apply_filters_button = self.driver.find_element_by_xpath("//button[starts-with(@aria-label, 'Apply current filters')]")
+        apply_filters_button.click()
+        time.sleep(1)
 
 if __name__ == "__main__":
     
@@ -58,5 +71,7 @@ if __name__ == "__main__":
 
     bot = JobApply(data)
     bot.login_linkedin()
-    time.sleep(5)
+    time.sleep(2)
     bot.job_search()
+    time.sleep(2)
+    bot.filter()
