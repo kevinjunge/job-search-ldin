@@ -50,7 +50,7 @@ class JobApply:
         search_location = self.driver.find_element_by_xpath("//input[starts-with(@id, 'jobs-search-box-location')]")
         search_location.clear()
         search_location.send_keys(self.location)
-        time.sleep(1)
+        time.sleep(2)
         search_keyword.send_keys(Keys.RETURN)
 
     def filter(self):
@@ -60,8 +60,23 @@ class JobApply:
         all_filters_button = self.driver.find_element_by_xpath("//button[starts-with(@aria-label, 'Show all filters')]")
         all_filters_button.click()
         time.sleep(1)
+        most_recent_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-sortBy-DD']")
+        most_recent_button.click()
+        time.sleep(1)
+        past_24h_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-timePostedRange-r86400']")
+        past_24h_button.click()
+        time.sleep(1)
+        entry_level_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-experience-2']")
+        entry_level_button.click()
+        time.sleep(1)
         easy_apply_button = self.driver.find_element_by_xpath("//div[@class='jobs-search-advanced-filters__binary-toggle']")
         easy_apply_button.click()
+        time.sleep(1)
+        it_job_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-function-it']")
+        it_job_button.click()
+        time.sleep(1)
+        engineering_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-function-eng']")
+        engineering_button.click()
         time.sleep(1)
         apply_filters_button = self.driver.find_element_by_xpath("//button[starts-with(@aria-label, 'Apply current filters')]")
         apply_filters_button.click()
@@ -84,7 +99,7 @@ class JobApply:
         for result in results:
             hover = ActionChains(self.driver).move_to_element(result)
             hover.perform()
-            titles = result.find_element_by_class_name("disabled.ember-view.job-card-container__link.job-card-list__title")
+            titles = result.find_elements_by_class_name("disabled.ember-view.job-card-container__link.job-card-list__title")
             for title in titles:
                 self.submit_application(title)
 
@@ -106,11 +121,11 @@ class JobApply:
             for page_number in range(25,total_jobs+25,25):
                 self.driver.get(current_page+"&start="+str(page_number))
                 time.sleep(2)
-                results_ext = self.driver.find_element_by_class_name("jobs-search-results__list-item.occludable-update.p0.relative.ember-view")
+                results_ext = self.driver.find_elements_by_class_name("jobs-search-results__list-item.occludable-update.p0.relative.ember-view")
                 for result_ext in results_ext:
                     hover_ext = ActionChains(self.driver).move_to_element(result_ext)
                     hover_ext.perform()
-                    titles_ext = result_ext.find_element_by_class_name("disabled.ember-view.job-card-container__link.job-card-list__title")
+                    titles_ext = result_ext.find_elements_by_class_name("disabled.ember-view.job-card-container__link.job-card-list__title")
                     for title_ext in titles_ext:
                         self.submit_application(title_ext)
         else:
@@ -119,7 +134,7 @@ class JobApply:
     def submit_application(self, job_ad):
         """This function submits the application for the job ad found"""
         
-        print("You are applying to the positon of: ", job_ad.text)
+        #print("You are applying to the positon of: ", job_ad.text)
         job_ad.click()
         time.sleep(2)
 
@@ -127,21 +142,50 @@ class JobApply:
         try:
             in_apply = self.driver.find_element_by_class_name("jobs-apply-button.artdeco-button.artdeco-button--3.artdeco-button--primary.ember-view")
             in_apply.click()
-            print("--->Clicked on easy apply")
         except:
-            print("You already applied to this job, go to next job...")
+            # print("You already applied to this job, go to next job...")
             pass
         time.sleep(1)
 
         # try to submit application if the application is available
+        self.next_session(0)
+        time.sleep(1)
+        self.submit_session(job_ad.text)
+        time.sleep(1)
+
+    def next_session(self, counter):
+        check_counter = 0
+        check_counter += counter
+        if check_counter > 4:
+            return
+        try:
+            next_button = self.driver.find_element_by_xpath("//button[@aria-label, 'Continue to next step']")
+            next_button.click()
+            check_counter +=1
+            time.sleep(1)
+            self.next_session(check_counter)
+        except NoSuchElementException:
+            try:
+                review_button = self.driver.find_element_by_xpath("//button[@aria-label, 'Review your application']")
+                review_button.click()
+                time.sleep(1)
+            except NoSuchElementException:
+                pass
+
+        
+    def submit_session(self, job_ad):
         try:
             submit = self.driver.find_element_by_xpath("//button[starts-with(@aria-label, 'Submit application')]")
-            submit.send_keys[Keys.RETURN]
-            print("--->Clicked on submit")
+            submit.click()
+            done = self.driver.find_element_by_class_name("artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view.mlA.block")
+            done.click()
+            print("--->Clicked on submit: " + job_ad)
             time.sleep(1)
         # .. if button is not available, discard application and go to next one
         except NoSuchElementException:
-            print("Not direct application, going to next...")
+            # print("Not direct application, going to next...")
+
+            # close it
             try:
                 discard = self.driver.find_element_by_xpath("//button[@data-test-modal-close-btn]")
                 discard.send_keys(Keys.RETURN)
@@ -152,12 +196,11 @@ class JobApply:
             except NoSuchElementException:
                 pass
 
-        time.sleep(1)
 
     def close_session(self):
         """This function closes the actual session"""
         
-        print('End of the session, see you later!')
+        # print('End of the session, see you later!')
         self.driver.close()
 
     def apply(self):
@@ -169,9 +212,9 @@ class JobApply:
         self.job_search()
         time.sleep(5)
         self.filter()
-        time.sleep(5)
+        time.sleep(2)
         self.find_offers()
-        time.sleep(5)
+        time.sleep(2)
         self.close_session()
 
 
