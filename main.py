@@ -1,8 +1,10 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import NoSuchElementException
 import json
 import time
+import re
 
 class JobApply:
 
@@ -82,11 +84,37 @@ class JobApply:
         for result in results:
             hover = ActionChains(self.driver).move_to_element(result)
             hover.perform()
+            titles = result.find_element_by_class_name("disabled.ember-view.job-card-container__link.job-card-list__title")
+            for title in titles:
+                self.submit_application(title)
 
+        # if there's more than one page, find the pages and apply to the results of each page
+        if total_results_int > 24:
+            time.sleep(2)
 
-
-
-
+            # find the last page and construct url of each page based on total amount of pages
+            find_pages = self.driver.find_elements_by_class_name("artdeco-pagination__indicator.artdeco-pagination__indicator--number.ember-view")
+            total_pages = find_pages[len(find_pages)-1].text
+            total_pages_int = int(re.sub(r"[^\d.]","",total_pages))
+            get_last_page = self.driver.find_element_by_xpath("//button[@aria-label='Page "+ str(total_pages_int)+"']")
+            get_last_page.send_keys(Keys.RETURN)
+            time.sleep(2)
+            last_page = self.driver.current_url
+            total_jobs = int(last_page.split('start=',1)[1])
+            
+            # go through all available pages and job offers and apply
+            for page_number in range(25,total_jobs+25,25):
+                self.driver.get(current_page+"&start="+str(page_number))
+                time.sleep(2)
+                results_ext = self.driver.find_element_by_class_name("jobs-search-results__list-item.occludable-update.p0.relative.ember-view")
+                for result_ext in results_ext:
+                    hover_ext = ActionChains(self.driver).move_to_element(result_ext)
+                    hover_ext.perform()
+                    titles_ext = result_ext.find_element_by_class_name("disabled.ember-view.job-card-container__link.job-card-list__title")
+                    for title_ext in titles_ext:
+                        self.submit_application(title_ext)
+        else:
+            self.close_session()
 
     def submit_application(self, job_ad):
         """This function submits the application for the job ad found"""
@@ -124,19 +152,35 @@ class JobApply:
             except NoSuchElementException:
                 pass
 
+        time.sleep(1)
+
+    def close_session(self):
+        """This function closes the actual session"""
+        
+        print('End of the session, see you later!')
+        self.driver.close()
+
+    def apply(self):
+        """Apply to job offers"""
+        
+        self.driver.maximize_window()
+        self.login_linkedin()
+        time.sleep(5)
+        self.job_search()
+        time.sleep(5)
+        self.filter()
+        time.sleep(5)
+        self.find_offers()
+        time.sleep(5)
+        self.close_session()
+
+
+
 if __name__ == "__main__":
     
     with open('config.json') as config_file:
         data = json.load(config_file)
 
-
     bot = JobApply(data)
-    bot.login_linkedin()
-    time.sleep(2)
-    bot.job_search()
-    time.sleep(2)
-    bot.filter()
-    time.sleep(1)
-    bot.find_offers()
-    time.sleep(1)
+    bot.apply()
     
