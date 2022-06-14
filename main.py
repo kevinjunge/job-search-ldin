@@ -2,6 +2,9 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import json
 import time
 import re
@@ -159,14 +162,14 @@ class JobApply:
         if check_counter > 4:
             return
         try:
-            next_button = self.driver.find_element_by_xpath("//button[@aria-label, 'Continue to next step']")
+            next_button = self.driver.find_element_by_class_name("artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view")
             next_button.click()
             check_counter +=1
             time.sleep(1)
             self.next_session(check_counter)
         except NoSuchElementException:
             try:
-                review_button = self.driver.find_element_by_xpath("//button[@aria-label, 'Review your application']")
+                review_button = self.driver.find_element_by_class_name("artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view")
                 review_button.click()
                 time.sleep(1)
             except NoSuchElementException:
