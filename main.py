@@ -119,7 +119,7 @@ class JobApply:
             time.sleep(2)
             last_page = self.driver.current_url
             total_jobs = int(last_page.split('start=',1)[1])
-            
+  
             # go through all available pages and job offers and apply
             for page_number in range(25,total_jobs+25,25):
                 self.driver.get(current_page+"&start="+str(page_number))
@@ -132,11 +132,14 @@ class JobApply:
                     for title_ext in titles_ext:
                         self.submit_application(title_ext)
         else:
-            self.close_session()
+            self.end_session()
 
     def submit_application(self, job_ad):
         """This function submits the application for the job ad found"""
-        
+
+       # job_ad = WebDriverWait(driver, 5000).until(EC.visibility_of_element_located(
+        #    (By.XPATH, "")
+       # ))
         #print("You are applying to the positon of: ", job_ad.text)
         job_ad.click()
         time.sleep(2)
@@ -145,15 +148,21 @@ class JobApply:
         try:
             in_apply = self.driver.find_element_by_class_name("jobs-apply-button.artdeco-button.artdeco-button--3.artdeco-button--primary.ember-view")
             in_apply.click()
+            time.sleep(1)
+            self.apply_job(job_ad)
         except:
             # print("You already applied to this job, go to next job...")
             pass
-        time.sleep(1)
 
+    def apply_job(self, job_ad):
         # try to submit application if the application is available
         self.next_session(0)
         time.sleep(1)
+        self.review_session()
+        time.sleep(1)
         self.submit_session(job_ad.text)
+        time.sleep(1)
+        self.close_session()
         time.sleep(1)
 
     def next_session(self, counter):
@@ -168,14 +177,16 @@ class JobApply:
             time.sleep(1)
             self.next_session(check_counter)
         except NoSuchElementException:
-            try:
-                review_button = self.driver.find_element_by_class_name("artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view")
-                review_button.click()
-                time.sleep(1)
-            except NoSuchElementException:
-                pass
+            pass
 
-        
+    def review_session(self):
+        try:
+            review_button = self.driver.find_element_by_class_name("artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view")
+            review_button.click()
+            time.sleep(1)
+        except NoSuchElementException:
+            pass
+
     def submit_session(self, job_ad):
         try:
             submit = self.driver.find_element_by_xpath("//button[starts-with(@aria-label, 'Submit application')]")
@@ -187,21 +198,25 @@ class JobApply:
         # .. if button is not available, discard application and go to next one
         except NoSuchElementException:
             # print("Not direct application, going to next...")
+            pass
 
-            # close it
+    def close_session(self):
+        # close it
+        try:
+            discard = self.driver.find_element_by_class_name("artdeco-modal__dismiss.artdeco-button.artdeco-button--circle.artdeco-button--muted.artdeco-button--2.artdeco-button--tertiary.ember-view")
+            discard.click()
+            time.sleep(1)
             try:
-                discard = self.driver.find_element_by_xpath("//button[@data-test-modal-close-btn]")
-                discard.send_keys(Keys.RETURN)
-                time.sleep(1)
-                discard_confirm = self.driver.find_element_by_xpath("//button[@data-control-name='discard_application_confirm_btn']")
-                discard_confirm.send_keys(Keys.RETURN)
+                save_confirm = self.driver.find_element_by_class_name("artdeco-modal__confirm-dialog-btn.artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view")
+                save_confirm.click()
                 time.sleep(1)
             except NoSuchElementException:
                 pass
+        except NoSuchElementException:
+            pass
 
-
-    def close_session(self):
-        """This function closes the actual session"""
+    def end_session(self):
+        """This function ends the actual session"""
         
         # print('End of the session, see you later!')
         self.driver.close()
@@ -218,7 +233,6 @@ class JobApply:
         time.sleep(2)
         self.find_offers()
         time.sleep(2)
-        self.close_session()
 
 
 
