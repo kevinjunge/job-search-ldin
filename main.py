@@ -1,4 +1,3 @@
-from tkinter import NO
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
@@ -27,14 +26,17 @@ class ApplyJob:
         # make driver go to the linkedin login url
         self.driver.get("https://www.linkedin.com/login/")
         
-        # introduce email and password and hit enter
+        # add in the email
         login_email = self.driver.find_element_by_name("session_key")
         # clear() -> clean the text and enable it
         login_email.clear()
         login_email.send_keys(self.email)
+        # add in password 
+        # (note: at config file: make sure to put in right password value for 'password' key)
         login_password = self.driver.find_element_by_name("session_password")
         login_password.clear()
         login_password.send_keys(self.password)
+        # Hit Enter to login with credentials provided
         login_password.send_keys(Keys.RETURN)
 
     def job_search(self):
@@ -62,37 +64,37 @@ class ApplyJob:
         """This function filters all the job results based on filters applied"""
 
         # select all filters, click on easy apply and apply the filter
-        all_filters_button = self.driver.find_element_by_xpath("//button[starts-with(@aria-label, 'Show all filters')]")
-        all_filters_button.click()
-        time.sleep(1)
+        self.apply_xpath_button("//button[starts-with(@aria-label, 'Show all filters')]")
+
         # sort by most recent
-        most_recent_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-sortBy-DD']")
-        most_recent_button.click()
-        time.sleep(1)
+        self.apply_xpath_button("//label[@for='advanced-filter-sortBy-DD']")
+
         # filters on jobs added in last 24 hrs
-        past_24h_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-timePostedRange-r86400']")
-        past_24h_button.click()
-        time.sleep(1)
+        self.apply_xpath_button("//label[@for='advanced-filter-timePostedRange-r86400']")
+
         # filters on entry level jobs
-        entry_level_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-experience-2']")
-        entry_level_button.click()
-        time.sleep(1)
+        self.apply_xpath_button("//label[@for='advanced-filter-experience-2']")
+
         # filters on jobs that has easy apply
-        easy_apply_button = self.driver.find_element_by_xpath("//div[@class='jobs-search-advanced-filters__binary-toggle']")
-        easy_apply_button.click()
-        time.sleep(1)
+        self.apply_xpath_button("//div[@class='jobs-search-advanced-filters__binary-toggle']")
+
         # filters on jobs in information technology
-        it_job_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-function-it']")
-        it_job_button.click()
-        time.sleep(1)
+        self.apply_xpath_button("//label[@for='advanced-filter-function-it']")
+
         # filters on jobs added in engineering
-        engineering_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-function-eng']")
-        engineering_button.click()
-        time.sleep(1)
+        self.apply_xpath_button("//label[@for='advanced-filter-function-eng']")
+
         # click 'Show results'
-        apply_filters_button = self.driver.find_element_by_xpath("//button[starts-with(@aria-label, 'Apply current filters')]")
-        apply_filters_button.click()
-        time.sleep(1)
+        self.apply_xpath_button("//button[starts-with(@aria-label, 'Apply current filters')]")
+
+    def apply_xpath_button(self, xpath_str):
+        try:
+            # filters on jobs in information technology
+            element_button = self.driver.find_element_by_xpath(xpath_str)
+            element_button.click()
+            time.sleep(1)
+        except NoSuchElementException:
+            pass
 
     def find_offers(self):
         """This function finds all the offers through all the pages result of the search and filtering"""
@@ -153,7 +155,7 @@ class ApplyJob:
        # job_link = WebDriverWait(driver, 5000).until(EC.visibility_of_element_located(
         #    (By.XPATH, "")
        # ))
-        #print("You are applying to the positon of: ", job_link.text)
+
         job_link.click()
         time.sleep(2)
 
