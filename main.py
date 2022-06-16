@@ -27,6 +27,7 @@ class ApplyJob:
         self.driver.get("https://www.linkedin.com/login/")
         
         # add in the email
+        # (note: at config file: make sure to put in right email value for 'email' key)
         login_email = self.driver.find_element_by_name("session_key")
         # clear() -> clean the text and enable it
         login_email.clear()
