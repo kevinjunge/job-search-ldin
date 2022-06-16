@@ -10,7 +10,7 @@ import json
 import time
 import re
 
-class JobApply:
+class ApplyJob:
 
     def __init__(self, data):
         """Parameter initialization"""
@@ -38,27 +38,28 @@ class JobApply:
         login_password.send_keys(Keys.RETURN)
 
     def job_search(self):
-        # this function goes to the 'Jobs' section and looks for all the jobs that
-        # matches the keywords and location
-        # 
+        """ this function goes to the 'Jobs' section and looks for all the jobs that
+            matches the keywords and location.
+        """
         # go to jobs section:
         jobs_link = self.driver.find_element_by_link_text('Jobs')
         jobs_link.click()
         time.sleep(2)
-
-        # introduce our keyword and location and hit enter
+        # enter keyword(s) on job search
         search_keyword = self.driver.find_element_by_xpath("//input[starts-with(@id, 'jobs-search-box-keyword')]")
         search_keyword.clear()
         search_keyword.send_keys(self.keywords)
         time.sleep(2)
+        # enter location on location search
         search_location = self.driver.find_element_by_xpath("//input[starts-with(@id, 'jobs-search-box-location')]")
         search_location.clear()
         search_location.send_keys(self.location)
         time.sleep(2)
+        # return job results
         search_keyword.send_keys(Keys.RETURN)
 
     def filter(self):
-        """This function filters all the job results"""
+        """This function filters all the job results based on filters applied"""
 
         # select all filters, click on easy apply and apply the filter
         all_filters_button = self.driver.find_element_by_xpath("//button[starts-with(@aria-label, 'Show all filters')]")
@@ -101,18 +102,10 @@ class JobApply:
         total_results_int = int(total_results.text.split(' ', 1)[0].replace(',',''))
         print(total_results_int)
         
-        time.sleep(2)
+        # time.sleep(2)
         # get results of first page
         current_page = self.driver.current_url
-        results = self.driver.find_elements_by_class_name("jobs-search-results__list-item.occludable-update.p0.relative.ember-view")
-
-        # for each job add, submits and application if no questions are asked
-        for result in results:
-            hover = ActionChains(self.driver).move_to_element(result)
-            hover.perform()
-            titles = result.find_elements_by_class_name("disabled.ember-view.job-card-container__link.job-card-list__title")
-            for title in titles:
-                self.submit_application(title)
+        self.return_results()
 
         # if there's more than one page, find the pages and apply to the results of each page
         if total_results_int > 24:
@@ -131,25 +124,29 @@ class JobApply:
             # go through all available pages and job offers and apply
             for page_number in range(25,total_jobs+25,25):
                 self.driver.get(current_page+"&start="+str(page_number))
-                time.sleep(2)
-                results_ext = self.driver.find_elements_by_class_name("jobs-search-results__list-item.occludable-update.p0.relative.ember-view")
-                for result_ext in results_ext:
-                    hover_ext = ActionChains(self.driver).move_to_element(result_ext)
-                    hover_ext.perform()
-                    titles_ext = result_ext.find_elements_by_class_name("disabled.ember-view.job-card-container__link.job-card-list__title")
-                    for title_ext in titles_ext:
-                        self.submit_application(title_ext)
+                self.return_results()
         else:
             self.end_session()
 
-    def submit_application(self, job_ad):
+    def return_results(self):
+        """ this function goes through each job in page and apply"""
+        time.sleep(2)
+        results = self.driver.find_elements_by_class_name("jobs-search-results__list-item.occludable-update.p0.relative.ember-view")
+        for result in results:
+            hover = ActionChains(self.driver).move_to_element(result)
+            hover.perform()
+            titles = result.find_elements_by_class_name("disabled.ember-view.job-card-container__link.job-card-list__title")
+            for title in titles:
+                self.submit_application(title)        
+
+    def submit_application(self, job_link):
         """This function submits the application for the job ad found"""
 
-       # job_ad = WebDriverWait(driver, 5000).until(EC.visibility_of_element_located(
+       # job_link = WebDriverWait(driver, 5000).until(EC.visibility_of_element_located(
         #    (By.XPATH, "")
        # ))
-        #print("You are applying to the positon of: ", job_ad.text)
-        job_ad.click()
+        #print("You are applying to the positon of: ", job_link.text)
+        job_link.click()
         time.sleep(2)
 
         # click on the easy apply button, skip if already applied to the position
@@ -157,16 +154,16 @@ class JobApply:
             in_apply = self.driver.find_element_by_class_name("jobs-apply-button.artdeco-button.artdeco-button--3.artdeco-button--primary.ember-view")
             in_apply.click()
             time.sleep(1)
-            self.apply_job(job_ad)
+            self.apply_job(job_link)
         except:
             # print("You already applied to this job, go to next job...")
             pass
 
-    def apply_job(self, job_ad):
+    def apply_job(self, job_link):
         # try to submit application if the application is available
         self.submit_session()
         time.sleep(1)
-        self.close_session(job_ad)
+        self.close_session(job_link)
         time.sleep(1)
         self.driver.find_element_by_class_name
 
@@ -183,7 +180,7 @@ class JobApply:
                 break
             counter +=1
 
-    def close_session(self, job_ad):
+    def close_session(self, job_link):
         # close it
         try:
             close_button = self.driver.find_element_by_class_name("artdeco-modal__dismiss.artdeco-button.artdeco-button--circle.artdeco-button--muted.artdeco-button--2.artdeco-button--tertiary.ember-view")
@@ -194,9 +191,9 @@ class JobApply:
                 save_confirm = self.driver.find_element_by_class_name("artdeco-modal__confirm-dialog-btn.artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view")
                 save_confirm.click()
                 time.sleep(1)
-                print("--->Need to apply: " + job_ad.text)
+                print("--->Need to apply: " + job_link.text)
             except NoSuchElementException:
-                print("--->Clicked on submit: " + job_ad.text)
+                print("--->Clicked on submit: " + job_link.text)
         except NoSuchElementException:
             pass
     
@@ -226,6 +223,6 @@ if __name__ == "__main__":
     with open('config.json') as config_file:
         data = json.load(config_file)
 
-    bot = JobApply(data)
+    bot = ApplyJob(data)
     bot.apply()
     
