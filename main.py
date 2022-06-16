@@ -1,3 +1,4 @@
+from tkinter import NO
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
@@ -156,65 +157,42 @@ class JobApply:
 
     def apply_job(self, job_ad):
         # try to submit application if the application is available
-        self.next_session(0)
+        self.submit_session()
         time.sleep(1)
-        self.review_session()
+        self.close_session(job_ad)
         time.sleep(1)
-        self.submit_session(job_ad.text)
-        time.sleep(1)
-        self.close_session()
-        time.sleep(1)
+        self.driver.find_element_by_class_name
 
-    def next_session(self, counter):
-        check_counter = 0
-        check_counter += counter
-        if check_counter > 4:
-            return
-        try:
-            next_button = self.driver.find_element_by_class_name("artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view")
-            next_button.click()
-            check_counter +=1
-            time.sleep(1)
-            self.next_session(check_counter)
-        except NoSuchElementException:
-            pass
+    def submit_session(self):
+        counter = 0
+        while(True or counter > 7):
+            if counter > 7:
+                break
+            try:
+                next_button = self.driver.find_element_by_class_name("artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view")
+                next_button.click()
+                time.sleep(1)
+            except NoSuchElementException:
+                break
+            counter +=1
 
-    def review_session(self):
-        try:
-            review_button = self.driver.find_element_by_class_name("artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view")
-            review_button.click()
-            time.sleep(1)
-        except NoSuchElementException:
-            pass
-
-    def submit_session(self, job_ad):
-        try:
-            submit = self.driver.find_element_by_xpath("//button[starts-with(@aria-label, 'Submit application')]")
-            submit.click()
-            done = self.driver.find_element_by_class_name("artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view.mlA.block")
-            done.click()
-            print("--->Clicked on submit: " + job_ad)
-            time.sleep(1)
-        # .. if button is not available, discard application and go to next one
-        except NoSuchElementException:
-            # print("Not direct application, going to next...")
-            pass
-
-    def close_session(self):
+    def close_session(self, job_ad):
         # close it
         try:
-            discard = self.driver.find_element_by_class_name("artdeco-modal__dismiss.artdeco-button.artdeco-button--circle.artdeco-button--muted.artdeco-button--2.artdeco-button--tertiary.ember-view")
-            discard.click()
+            close_button = self.driver.find_element_by_class_name("artdeco-modal__dismiss.artdeco-button.artdeco-button--circle.artdeco-button--muted.artdeco-button--2.artdeco-button--tertiary.ember-view")
+            close_button.click()
             time.sleep(1)
             try:
+                # save applications that couldn't be applied
                 save_confirm = self.driver.find_element_by_class_name("artdeco-modal__confirm-dialog-btn.artdeco-button.artdeco-button--2.artdeco-button--primary.ember-view")
                 save_confirm.click()
                 time.sleep(1)
+                print("--->Need to apply: " + job_ad.text)
             except NoSuchElementException:
-                pass
+                print("--->Clicked on submit: " + job_ad.text)
         except NoSuchElementException:
             pass
-
+    
     def end_session(self):
         """This function ends the actual session"""
         
