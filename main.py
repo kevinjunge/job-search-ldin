@@ -64,24 +64,31 @@ class JobApply:
         all_filters_button = self.driver.find_element_by_xpath("//button[starts-with(@aria-label, 'Show all filters')]")
         all_filters_button.click()
         time.sleep(1)
+        # sort by most recent
         most_recent_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-sortBy-DD']")
         most_recent_button.click()
         time.sleep(1)
+        # filters on jobs added in last 24 hrs
         past_24h_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-timePostedRange-r86400']")
         past_24h_button.click()
         time.sleep(1)
+        # filters on entry level jobs
         entry_level_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-experience-2']")
         entry_level_button.click()
         time.sleep(1)
+        # filters on jobs that has easy apply
         easy_apply_button = self.driver.find_element_by_xpath("//div[@class='jobs-search-advanced-filters__binary-toggle']")
         easy_apply_button.click()
         time.sleep(1)
+        # filters on jobs in information technology
         it_job_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-function-it']")
         it_job_button.click()
         time.sleep(1)
+        # filters on jobs added in engineering
         engineering_button = self.driver.find_element_by_xpath("//label[@for='advanced-filter-function-eng']")
         engineering_button.click()
         time.sleep(1)
+        # click 'Show results'
         apply_filters_button = self.driver.find_element_by_xpath("//button[starts-with(@aria-label, 'Apply current filters')]")
         apply_filters_button.click()
         time.sleep(1)
