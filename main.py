@@ -137,7 +137,15 @@ class ApplyJob:
             hover.perform()
             titles = result.find_elements_by_class_name("disabled.ember-view.job-card-container__link.job-card-list__title")
             for title in titles:
-                self.submit_application(title)        
+                d = ['software', 'data', 'QA', 'engineer', 'python', 'java', 'sql', 'database','scala', 'c#', 'developer', 'etl']
+                s = title.text.split(' ')
+                found_match = False
+                for i in s:
+                    if i.lower() in d:
+                        found_match = True
+                        break
+                if found_match:
+                    self.submit_application(title)        
 
     def submit_application(self, job_link):
         """This function submits the application for the job ad found"""
