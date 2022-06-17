@@ -13,4 +13,17 @@ Tech stack: Python, jSon, Selenium, Chrome driver
 - Goes through all the pages of job posts, and once complete, closes window and prints total number of jobs found, which jobs were applied, and which jobs were saved up.
 
 Note:
- - makes sure chromedriver downloaded corresponds to google chrome version 
+ - makes sure chromedriver downloaded corresponds to google chrome version
+
+
+***installations:***
+
+- download chromedriver
+
+- install anaconda for python 
+
+- in terminal:
+	- `conda create -n selenium_py python=<version>`
+	- `source "C:\Program Files\Anaconda3\etc\profile.d\conda.sh"`
+	- `conda activate selenium_py`
+  
